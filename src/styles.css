@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; min-width: 320px; font-family: 'Space Grotesk', sans-serif; }
+  button, input, select { font: inherit; }
+  button { -webkit-tap-highlight-color: transparent; }
+  ::selection { background: #b8f34a; color: #070a0f; }
+  .dark body {
+    background-color: #070a0f;
+    background-image: radial-gradient(circle at 72% 3%, rgba(62, 232, 255, .07), transparent 25%), linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size: auto, 44px 44px, 44px 44px;
+  }
+}
+
+@layer components {
+  .logo-mark { @apply relative flex h-9 w-9 items-center justify-center rounded-xl border border-acid/40 bg-acid/10 text-acid shadow-glow; }
+  .logo-mark::after { content: ''; @apply absolute -right-1 -top-1 h-2 w-2 rounded-full bg-acid; box-shadow: 0 0 12px #b8f34a; }
+  .icon-button { @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:-translate-y-0.5 hover:border-slate-300 hover:text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:hover:border-white/20 dark:hover:text-white; }
+  .vault-button { @apply flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 font-mono text-[10px] uppercase tracking-wider text-slate-600 transition hover:border-acid/50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300; }
+  .vault-button b { @apply rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] font-medium text-slate-500 dark:bg-white/10 dark:text-acid; }
+  .domain-slot::before { content: ''; @apply pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent; }
+  .scan-line { @apply pointer-events-none absolute left-0 top-0 h-full w-full opacity-[0.035]; background: repeating-linear-gradient(0deg, transparent, transparent 3px, #fff 4px); }
+  .spin-button { @apply flex h-14 w-14 items-center justify-center rounded-full border border-acid/40 bg-acid text-ink shadow-glow transition duration-300 hover:rotate-12 hover:scale-105 hover:bg-white lg:h-16 lg:w-16; }
+  .primary-button { @apply inline-flex items-center justify-center gap-3 rounded-xl bg-acid px-6 py-3.5 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-ink shadow-glow transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_0_40px_rgba(184,243,74,.35)] active:translate-y-0 active:scale-[.98]; }
+  .secondary-button { @apply inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-mono text-[10px] uppercase tracking-wider text-slate-500 transition hover:border-violet/50 hover:text-violet dark:border-white/10 dark:bg-white/5 dark:text-slate-400; }
+  .pill { @apply rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono text-[9px] uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400; }
+  .idea-card { transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease; }
+  .idea-card:hover { transform: translateY(-4px); border-color: rgba(184,243,74,.28); box-shadow: 0 18px 60px rgba(0,0,0,.18); }
+  .action-button { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white py-2.5 font-mono text-[10px] uppercase tracking-wider text-slate-500 transition hover:border-acid/50 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:hover:text-acid; }
+  .filter-chip { @apply rounded-lg px-2.5 py-2 font-mono text-[9px] uppercase tracking-wide text-slate-500 transition hover:text-slate-900 dark:hover:text-white; }
+  .filter-chip.active { @apply bg-slate-900 text-white shadow-sm dark:bg-acid dark:text-ink; }
+  .search-input { @apply w-36 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 font-mono text-[10px] text-slate-600 outline-none transition placeholder:text-slate-400 focus:w-48 focus:border-cyan dark:border-white/10 dark:bg-white/5 dark:text-slate-300; }
+  .input { @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-acid/50; }
+  .domain-select { color-scheme: light; }
+  .domain-select option { background: #ffffff; color: #334155; }
+  .dark .domain-select { color-scheme: dark; }
+  .dark .domain-select option { background: #0d121b; color: #f8fafc; }
+  .provider-select { color-scheme: light; }
+  .provider-select option { background: #ffffff; color: #334155; }
+  .dark .provider-select { color-scheme: dark; }
+  .dark .provider-select option { background: #1b1f29; color: #f8fafc; }
+}
+
+@media (max-width: 639px) {
+  .filter-chip { padding-left: .5rem; padding-right: .5rem; font-size: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

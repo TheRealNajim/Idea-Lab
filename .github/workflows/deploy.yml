@@ -1,0 +1,72 @@
+name: Deploy to GitHub Pages
+
+# GitHub Pages is a static file host: it never runs a build. Pointing it at the
+# repository root served the *source* index.html, whose
+# `<script type="module" src="/src/main.jsx">` 404s (absolute path ignores the
+# /<repo>/ prefix) and is untransformed JSX served as text/jsx that no browser
+# will execute. Result: an empty #root and a blank white page. This workflow runs
+# the Vite build and publishes dist/ instead.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  # deploy-pages mints an OIDC token to publish the artifact.
+  id-token: write
+
+# Never cancel a deploy midway; just let a newer push queue behind it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # vite 8 and @vitejs/plugin-react 6 require ^20.19.0 || >=22.12.0.
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          # Also flips the Pages source from "deploy from a branch" to "GitHub
+          # Actions" on the first run, so no manual settings change is needed.
+          enablement: true
+
+      - name: Build
+        env:
+          # e.g. "/AI-Concept-Mashup-Generator" -> vite.config.js adds the
+          # trailing slash. Derived from the API so renaming the repo can't
+          # silently break asset URLs again.
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # Optional. Absent secrets leave both values empty, which src/lib/analytics.js
+          # already treats as "analytics disabled" rather than erroring.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

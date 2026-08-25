@@ -55,6 +55,30 @@ the SPA rewrite.
 Because Vite inlines `VITE_*` variables at build time, changing them requires a
 redeploy to take effect.
 
+## 6. Deploy to GitHub Pages
+
+`.github/workflows/deploy.yml` builds the project and publishes `dist/` on every
+push to `main`.
+
+One-time setup: open **Settings > Pages** and set **Source** to
+**GitHub Actions**. The workflow also attempts this automatically via
+`actions/configure-pages`, but the API call requires admin rights on the repo, so
+set it manually if the first run fails.
+
+Optionally add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` under
+**Settings > Secrets and variables > Actions** to enable analytics. Without them
+the build still succeeds and analytics stays off.
+
+Do **not** point Pages at a branch instead. Pages is a static host and never runs
+a build, so serving the repository root delivers the source `index.html`, whose
+`<script type="module" src="/src/main.jsx">` both resolves outside the
+`/<repo>/` prefix and is untransformed JSX. The page loads white and empty.
+
+Because project sites live under `https://<user>.github.io/<repo>/`, the build
+needs a matching asset prefix. The workflow passes `BASE_PATH` for this and
+`vite.config.js` defaults it to `/`, which is what Vercel and local builds use —
+so both deploy targets keep working from the same commit.
+
 ## Privacy notes
 
 - No analytics event is sent until the user explicitly accepts the consent banner.

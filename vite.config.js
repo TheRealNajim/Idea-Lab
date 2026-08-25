@@ -10,7 +10,10 @@ import { defineConfig } from 'vite'
 // Normalised here rather than in the workflow because actions/configure-pages
 // reports base_path without a trailing slash ("/repo"), while Vite requires one,
 // and a user/org site reports it as "/" where naive appending would yield "//".
-const rawBase = process.env.BASE_PATH || '/'
+const repositoryName = process.env.GITHUB_REPOSITORY?.split('/').pop()
+const rawBase = process.env.BASE_PATH || (
+  process.env.GITHUB_ACTIONS && repositoryName ? `/${repositoryName}` : '/'
+)
 const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`
 
 // Without this config the declared @vitejs/plugin-react dependency was never

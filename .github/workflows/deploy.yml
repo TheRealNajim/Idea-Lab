@@ -41,20 +41,33 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
         with:
-          # Also flips the Pages source from "deploy from a branch" to "GitHub
-          # Actions" on the first run, so no manual settings change is needed.
+          # Tries to flip the Pages source from "deploy from a branch" to
+          # "GitHub Actions". This is best-effort only: on a repo where Pages is
+          # already enabled in branch mode the API call does not override the
+          # existing config, so the Settings > Pages change still has to be made
+          # by hand. The verify step in the deploy job catches it if it wasn't.
           enablement: true
+
+      - name: Resolve base path
+        env:
+          FROM_PAGES: ${{ steps.pages.outputs.base_path }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          # configure-pages reports the right prefix for both project sites
+          # ("/repo") and user sites ("/"). Falling back to the repo name keeps an
+          # unexpected or empty API response from silently producing a
+          # root-relative build, which would 404 on a project site.
+          BASE="${FROM_PAGES:-/$REPO_NAME}"
+          echo "BASE_PATH=$BASE" >> "$GITHUB_ENV"
+          echo "Building with base: $BASE"
 
       - name: Build
         env:
-          # e.g. "/AI-Concept-Mashup-Generator" -> vite.config.js adds the
-          # trailing slash. Derived from the API so renaming the repo can't
-          # silently break asset URLs again.
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
           # Optional. Absent secrets leave both values empty, which src/lib/analytics.js
           # already treats as "analytics disabled" rather than erroring.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        # BASE_PATH comes from the step above via $GITHUB_ENV.
         run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
@@ -70,3 +83,44 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the deployed site is the built output
+        env:
+          URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          # If Pages is still on "deploy from a branch", GitHub's legacy builder
+          # runs on the same push and can finish *after* this job, overwriting the
+          # deployment with the unbuilt repository root. That left this workflow
+          # green while the live site served a blank page. Detect it and fail.
+          #
+          # Only positive evidence of the legacy overwrite is treated as a
+          # failure; network hiccups and CDN lag just warn, so a working deploy is
+          # never reported as broken.
+          for i in $(seq 1 12); do
+            sleep 10
+            HTML="$(curl -fsSL "$URL" || true)"
+            case "$HTML" in
+              *"/assets/index-"*)
+                echo "Verified: $URL is serving the built bundle."
+                exit 0
+                ;;
+              *"/src/main.jsx"*)
+                echo "::warning::Attempt $i/12: still serving unbuilt source, retrying."
+                ;;
+              *)
+                echo "::warning::Attempt $i/12: no usable response yet, retrying."
+                ;;
+            esac
+          done
+
+          case "$HTML" in
+            *"/src/main.jsx"*)
+              echo "::error::$URL is serving unbuilt source, so this deployment was overwritten."
+              echo "Fix: Settings > Pages > Source -> 'GitHub Actions'."
+              echo "It is currently on 'Deploy from a branch', and that builder wins because it runs last."
+              exit 1
+              ;;
+            *)
+              echo "::warning::Could not confirm the deployment (CDN lag or transient error). Not failing."
+              ;;
+          esac

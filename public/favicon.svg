@@ -1,0 +1,27 @@
+<!-- No width/height: the viewBox alone lets the browser rasterise this at whatever
+     size it needs (16, 32, 48...) instead of pinning an intrinsic 24px box. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Idea Lab">
+  <!--
+    Tab icon for Idea Lab. Geometry is the lucide "flask-conical" path, the same
+    icon used by .logo-mark in the header, so the tab and the in-page mark match.
+
+    Deliberately inverted relative to .logo-mark (which is an acid glyph on a dark
+    tile): at a 16px render an acid-on-near-black tile collapses into an
+    indistinct dark square, and the 2px-stroke glyph disappears. A solid acid
+    tile with an ink glyph keeps maximum contrast at tab size and still reads on
+    both light and dark browser chrome. It also matches .primary-button and
+    .spin-button, which are already acid-on-ink.
+  -->
+  <rect width="24" height="24" rx="5.5" fill="#b8f34a"/>
+  <!--
+    Scaled to 0.78 about the centre (translate = 12 * (1 - 0.78)) to inset the
+    glyph, since the raw 24x24 lucide artwork runs edge to edge and would touch
+    the tile corners. stroke-width is pre-compensated: 2.4 * 0.78 ~= 1.87, which
+    still resolves to a ~1.25px line at a 16px render.
+  -->
+  <g transform="translate(2.64 2.64) scale(0.78)" fill="none" stroke="#070a0f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/>
+    <path d="M6.453 15h11.094"/>
+    <path d="M8.5 2h7"/>
+  </g>
+</svg>

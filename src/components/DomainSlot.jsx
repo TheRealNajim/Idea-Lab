@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { ChevronDown, Terminal } from 'lucide-react'
+import { EASE_OUT, EASE_SMOOTH, SPIN_MS } from '../lib/motion'
 
 export function DomainSlot({ label, value, onChange, domains, spinning, accent }) {
   return (
@@ -11,10 +12,23 @@ export function DomainSlot({ label, value, onChange, domains, spinning, accent }
       </div>
 
       <div className="relative mb-5">
+        {/*
+          No `key` here on purpose. Keying on `value`/`spinning` unmounted this node
+          the instant the spin finished, which killed the running animation and
+          snapped the new domain in with no transition at all. Driving it purely
+          from the `spinning` prop lets the keyframes play through, and App swaps
+          the label mid-animation so the settle reveals the new value.
+
+          Also transform/opacity only. The old version animated `filter: blur()`
+          on 3xl/4xl display text, which forces a fresh full-quality repaint of the
+          glyphs every frame and is the single most expensive thing you can put in
+          a 60fps loop.
+        */}
         <motion.div
-          key={spinning ? `spin-${value}` : value}
-          animate={spinning ? { y: [0, -12, 12, 0], opacity: [1, 0.25, 0.25, 1], filter: ['blur(0px)', 'blur(5px)', 'blur(2px)', 'blur(0px)'] } : { y: 0 }}
-          transition={{ duration: 0.28 }}
+          animate={spinning ? { y: [0, -10, 6, 0], opacity: [1, 0.2, 0.7, 1] } : { y: 0, opacity: 1 }}
+          transition={spinning
+            ? { duration: SPIN_MS / 1000, ease: EASE_SMOOTH, times: [0, 0.35, 0.7, 1] }
+            : { duration: 0.24, ease: EASE_OUT }}
           className="pr-8 font-display text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl"
         >
           {value}

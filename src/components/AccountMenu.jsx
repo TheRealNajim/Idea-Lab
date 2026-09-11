@@ -77,7 +77,7 @@ export function AccountMenu({ auth, onUpgrade, notify }) {
         exit={{ opacity: 0, y: -4, scale: 0.99 }}
         transition={FADE}
         role="menu"
-        className="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-white/10 bg-panel p-4 shadow-2xl shadow-black/50"
+        className="fixed inset-x-4 top-[72px] z-50 max-h-[calc(100dvh-96px)] overflow-y-auto rounded-2xl border border-white/10 bg-panel p-4 shadow-2xl shadow-black/50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:max-h-none sm:w-72"
       >
         <div className="flex items-center gap-3 border-b border-white/10 pb-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 font-display text-sm font-semibold text-white">{(displayName[0] || '?').toUpperCase()}</span>

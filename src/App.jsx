@@ -345,14 +345,14 @@ function App() {
 
   return <MotionConfig reducedMotion="user"><div className="min-h-screen bg-[#f5f7f2] text-slate-900 transition-colors dark:bg-ink dark:text-white">
     <header className="app-header sticky top-0 z-30 border-b border-slate-200/80 bg-[#f5f7f2]/85 backdrop-blur-xl dark:border-white/10 dark:bg-ink/80">
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="group flex items-center gap-3 text-left" aria-label="Go to top of Idea Lab"><div className="logo-mark transition group-hover:-translate-y-0.5"><FlaskConical className="h-4 w-4" /></div><div><p className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Idea Lab</p><h1 className="font-display text-sm font-semibold tracking-tight text-slate-900 dark:text-white">// Mashup Generator</h1></div></button>
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4 sm:px-8 lg:px-12">
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="group flex items-center gap-3 text-left" aria-label="Go to top of Idea Lab"><div className="logo-mark transition group-hover:-translate-y-0.5"><FlaskConical className="h-4 w-4" /></div><div><p className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Idea Lab</p><h1 className="hidden font-display text-sm font-semibold tracking-tight text-slate-900 dark:text-white sm:block">// Mashup Generator</h1></div></button>
         <div className="flex items-center gap-2 sm:gap-3">
           {auth.authAvailable && (auth.session
             ? <AccountMenu auth={auth} onUpgrade={openPaywall} notify={notify} />
             : <button onClick={() => openAuth('Sign in to claim your free trial — 5 signal scans + 3 AI blueprints.')} className="secondary-button"><User className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Sign in</span></button>)}
           <button className="icon-button" onClick={() => setDark(!dark)} aria-label="Toggle theme">{dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button>
-          <button onClick={() => setHistoryOpen(true)} className="icon-button" aria-label="Open generation history"><History className="h-4 w-4" /></button>
+          <button onClick={() => setHistoryOpen(true)} className="icon-button hidden sm:inline-flex" aria-label="Open generation history"><History className="h-4 w-4" /></button>
           <button onClick={() => setVaultOpen(true)} className="vault-button"><Bookmark className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Vault</span><b>{saved.length}</b></button>
         </div>
       </div>

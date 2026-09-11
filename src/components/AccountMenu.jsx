@@ -6,7 +6,7 @@ import { FADE } from '../lib/motion'
 
 const PLAN_BADGE = {
   pro: 'border-acid/40 bg-acid/10 text-acid',
-  trial: 'border-cyan/40 bg-cyan/10 text-cyan',
+  trial: 'border-white/15 bg-white/5 text-slate-300',
   free: 'border-white/15 bg-white/5 text-slate-400',
 }
 
@@ -67,7 +67,7 @@ export function AccountMenu({ auth, onUpgrade, notify }) {
     >
       <span className={`flex h-5 w-5 items-center justify-center rounded-md font-semibold ${isPro ? 'bg-acid text-ink' : 'bg-white/10 text-slate-300'}`}>{(displayName[0] || '?').toUpperCase()}</span>
       <span className="hidden sm:inline">{isPro ? 'Pro' : plan === 'free' ? 'Free' : 'Trial'}</span>
-      <span className={`h-1.5 w-1.5 rounded-full ${isPro ? 'bg-acid shadow-[0_0_8px_#b8f34a]' : 'bg-cyan'}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${isPro ? 'bg-acid shadow-[0_0_8px_#b8f34a]' : 'bg-slate-400'}`} />
     </button>
 
     <AnimatePresence>

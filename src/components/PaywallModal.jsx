@@ -62,8 +62,8 @@ export function PaywallModal({ onClose, reason, auth, onUseOwnKey }) {
 
       <p className="mt-4 flex items-center justify-center gap-1.5 font-mono text-[10px] leading-4 text-slate-600"><CreditCard className="h-3 w-3" /> Secure Stripe checkout. Cancel anytime.</p>
 
-      {reason === 'ai' && <button onClick={onUseOwnKey} className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-cyan/25 bg-cyan/[0.06] p-4 text-left transition hover:border-cyan/40">
-        <KeyRound className="h-4 w-4 shrink-0 text-cyan" />
+      {reason === 'ai' && <button onClick={onUseOwnKey} className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-acid/40">
+        <KeyRound className="h-4 w-4 shrink-0 text-acid" />
         <span className="text-xs leading-5 text-slate-400">Or use <b className="text-slate-200">your own model key</b> in Model setup — blueprints then run free, straight from your browser.</span>
       </button>}
     </motion.div>

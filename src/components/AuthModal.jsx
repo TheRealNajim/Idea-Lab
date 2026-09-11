@@ -48,7 +48,7 @@ export function AuthModal({ onClose, reason, sendMagicLink }) {
             <button onClick={onClose} className="secondary-button mt-4">Back to the lab</button>
           </div>
           : <form onSubmit={submit}>
-            {reason && <p className="mb-4 flex items-center gap-2 rounded-xl border border-cyan/25 bg-cyan/[0.07] px-3 py-2.5 font-mono text-[10px] leading-4 text-cyan">{reason}</p>}
+            {reason && <p className="mb-4 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 font-mono text-[10px] leading-4 text-slate-400">{reason}</p>}
             <label className="mb-5 block">
               <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500">Email address</span>
               <input

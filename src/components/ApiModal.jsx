@@ -47,8 +47,8 @@ export function ApiModal({ onClose }) {
         <button className="icon-button" onClick={onClose} aria-label="Close model setup"><X className="h-4 w-4" /></button>
       </div>
 
-      <div className="mb-6 flex gap-3 rounded-2xl border border-cyan/25 bg-cyan/[0.07] p-4">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-cyan" />
+      <div className="mb-6 flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-acid" />
         <p className="text-xs leading-5 text-slate-400">
           With your own key, <strong className="font-semibold text-slate-200">AI blueprints call the provider straight from this browser</strong> — the key is stored for this tab only and never reaches the Idea Lab server. Prefer not to paste keys? The server model works too, on your free trial credits or Pro.
         </p>

@@ -34,15 +34,6 @@ const formatDate = (iso) => {
   return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' })
 }
 
-const sourceAccent = {
-  Reddit: 'border-orange-400/30 text-orange-400',
-  'Hacker News': 'border-amber-400/30 text-amber-400',
-  'Stack Overflow': 'border-yellow-400/30 text-yellow-500',
-  Medium: 'border-slate-400/30 text-slate-400',
-  YouTube: 'border-red-400/30 text-red-400',
-  X: 'border-slate-400/30 text-slate-400',
-}
-
 export function SignalScan({ auth, domainA, domainB, domainC, onForge, openAuth, openPaywall }) {
   const [topic, setTopic] = useState('')
   const [activeSources, setActiveSources] = useState(DEFAULT_ACTIVE)
@@ -221,7 +212,7 @@ export function SignalScan({ auth, domainA, domainB, domainC, onForge, openAuth,
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider ${sourceAccent[signal.source] || 'border-slate-400/30 text-slate-400'}`}>{signal.source}</span>
+                    <span className="rounded-full border border-slate-300/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-slate-500 dark:border-white/15 dark:text-slate-400">{signal.source}</span>
                     {signal.engagement > 0 && <span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-slate-400"><Zap className="h-3 w-3" />{formatEngagement(signal.engagement)}</span>}
                     {formatDate(signal.postedAt) && <span className="font-mono text-[9px] uppercase tracking-wider text-slate-400">{formatDate(signal.postedAt)}</span>}
                   </span>

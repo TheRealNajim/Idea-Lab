@@ -194,12 +194,12 @@ export function BlueprintModal({ idea, onClose, auth, openAuth, openPaywall, ope
         </div>
 
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
-          <button onClick={() => setUseOwn(true)} disabled={!ownKey.hasKey} className={`rounded-2xl border p-4 text-left transition disabled:opacity-40 ${useOwn ? 'border-cyan/50 bg-cyan/[0.06]' : 'border-white/10 bg-white/[0.03] hover:border-white/20'}`}>
-            <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-cyan"><KeyRound className="h-3.5 w-3.5" /> Your key — free</p>
+          <button onClick={() => setUseOwn(true)} disabled={!ownKey.hasKey} className={`rounded-2xl border p-4 text-left transition disabled:opacity-40 ${useOwn ? 'border-acid/50 bg-acid/[0.06]' : 'border-white/10 bg-white/[0.03] hover:border-white/20'}`}>
+            <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400"><KeyRound className="h-3.5 w-3.5 text-acid" /> Your key — free</p>
             <p className="mt-2 text-xs leading-5 text-slate-400">{ownKey.hasKey ? `${ownKey.provider} key, calls go straight from this browser.` : 'Add a provider key in Model setup to unlock this.'}</p>
           </button>
           <button onClick={() => setUseOwn(false)} className={`rounded-2xl border p-4 text-left transition ${!useOwn ? 'border-acid/50 bg-acid/[0.06]' : 'border-white/10 bg-white/[0.03] hover:border-white/20'}`}>
-            <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-acid"><Brain className="h-3.5 w-3.5" /> Idea Lab model — 1 credit</p>
+            <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-slate-400"><Brain className="h-3.5 w-3.5 text-acid" /> Idea Lab model — 1 credit</p>
             <p className="mt-2 text-xs leading-5 text-slate-400">{auth.isPro ? 'Pro: unlimited blueprints.' : auth.session ? `${auth.profile?.trial_ai_left ?? '…'} trial blueprint${auth.profile?.trial_ai_left === 1 ? '' : 's'} left.` : 'Sign in — free trial includes 3.'}</p>
           </button>
         </div>
@@ -263,7 +263,7 @@ export function BlueprintModal({ idea, onClose, auth, openAuth, openPaywall, ope
 
         {bp.architecture.dataModel.length > 0 && <Section icon={Database} title="Data model">
           <div className="grid gap-2 sm:grid-cols-2">{bp.architecture.dataModel.map((entity) => <div key={entity.entity} className="rounded-xl border border-white/10 bg-black/20 p-3">
-            <p className="font-mono text-[10px] uppercase tracking-wider text-violet">{entity.entity}</p>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">{entity.entity}</p>
             <p className="mt-1.5 font-mono text-xs leading-5 text-slate-300">{entity.fields}</p>
             {entity.notes && <p className="mt-1.5 text-xs leading-4 text-slate-500">{entity.notes}</p>}
           </div>)}</div>

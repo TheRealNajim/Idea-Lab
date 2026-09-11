@@ -1,5 +1,5 @@
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
-import { Bookmark, ChevronRight, Copy, Cpu, Download, Dices, FlaskConical, GitCompareArrows, History, KeyRound, Moon, MoreHorizontal, RotateCw, Search, Sparkles, Sun, User, X } from 'lucide-react'
+import { Bookmark, ChevronRight, Copy, Download, Dices, FlaskConical, GitCompareArrows, History, KeyRound, Moon, MoreHorizontal, RotateCw, Search, Sparkles, Sun, User, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createCustomMashups, createSignalIdeas, domains, filters, mashups, vaultFolders } from './data/mashups'
 import { useLocalStorage } from './hooks/useLocalStorage'
@@ -348,7 +348,6 @@ function App() {
       <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="group flex items-center gap-3 text-left" aria-label="Go to top of Idea Lab"><div className="logo-mark transition group-hover:-translate-y-0.5"><FlaskConical className="h-4 w-4" /></div><div><p className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Idea Lab</p><h1 className="font-display text-sm font-semibold tracking-tight text-slate-900 dark:text-white">// Mashup Generator</h1></div></button>
         <div className="flex items-center gap-2 sm:gap-3">
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500 sm:block"><span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-acid shadow-[0_0_10px_#b8f34a]" />System online</span>
           {auth.authAvailable && (auth.session
             ? <AccountMenu auth={auth} onUpgrade={openPaywall} notify={notify} />
             : <button onClick={() => openAuth('Sign in to claim your free trial — 5 signal scans + 3 AI blueprints.')} className="secondary-button"><User className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Sign in</span></button>)}
@@ -360,11 +359,11 @@ function App() {
     </header>
 
     <main className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
-      <section className="mb-14 grid items-end gap-8 lg:grid-cols-[1fr_320px]"><div><p className="mb-5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-acid"><span className="h-px w-8 bg-acid" />Experiment 005 / Cross-pollination engine</p><h2 className="max-w-4xl font-display text-5xl font-semibold leading-[0.95] tracking-[-0.08em] text-slate-950 dark:text-white sm:text-7xl lg:text-[6.5rem]">Make the <span className="text-acid [text-shadow:0_0_28px_rgba(184,243,74,.28)]">unlikely</span><br />feel inevitable.</h2></div><div className="border-l border-slate-300 pl-5 dark:border-white/15"><p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">The brief</p><p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Two unrelated domains. Real problems mined from the web. An AI architect that scopes the build — before you write a line of code.</p></div></section>
+      <section className="mb-14"><h2 className="max-w-4xl font-display text-5xl font-semibold leading-[0.95] tracking-[-0.08em] text-slate-950 dark:text-white sm:text-7xl lg:text-[6.5rem]">Make the <span className="text-acid [text-shadow:0_0_28px_rgba(184,243,74,.28)]">unlikely</span><br />feel inevitable.</h2></section>
 
       <section className="mb-16">
         <div className="mb-4 flex items-end justify-between">
-          <div><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">01 / Select your collision</p><p className="mt-2 text-xs text-slate-500">Pull two worlds into the same orbit.</p></div>
+          <div><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">01 / Select your collision</p></div>
           <div className="flex gap-2"><button onClick={() => setAdvanced(!advanced)} className="secondary-button"><MoreHorizontal className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Advanced</span></button><button onClick={() => setApiOpen(true)} className="secondary-button"><KeyRound className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Model setup</span></button></div>
         </div>
         <div className="grid items-center gap-3 lg:grid-cols-[1fr_76px_1fr] lg:items-stretch">
@@ -378,8 +377,7 @@ function App() {
         {/* Height animations reflow everything below them on every frame, so this
             one is kept short and the fade is front-loaded to hide the reflow. */}
         <AnimatePresence initial={false}>{advanced && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ height: { duration: 0.3, ease: EASE_SMOOTH }, opacity: { duration: 0.2, ease: EASE_SMOOTH } }} className="overflow-hidden"><AdvancedControls settings={settings} onChange={setSettings} /></motion.div>}</AnimatePresence>
-        <div className="mt-5 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500"><span className="text-acid">Ready //</span> {ideas.length} patterns in the archive</p>
+        <div className="mt-5 flex justify-end">
           <button onClick={generate} className="primary-button"><Sparkles className="h-4 w-4" /> Generate ideas <ChevronRight className="h-4 w-4" /></button>
         </div>
       </section>
@@ -431,7 +429,7 @@ function App() {
       </section>
     </main>
 
-    <footer className="border-t border-slate-200 px-5 py-8 dark:border-white/10 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500"><span>Idea Lab / v2.0.0</span><span className="hidden sm:block">Make weird useful</span><span><Cpu className="mr-1 inline h-3 w-3" /> {hasPreferences ? 'Learning locally' : 'Local archive'}</span><button onClick={() => { resetLearning(); clearAnonymousAnalyticsId(); setConsent(null) }} className="text-slate-500 transition hover:text-acid">Privacy controls</button></div></footer>
+    <footer className="border-t border-slate-200 px-5 py-8 dark:border-white/10 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500"><span>Idea Lab / v2.0.0</span><span className="hidden sm:block">Make weird useful</span><button onClick={() => { resetLearning(); clearAnonymousAnalyticsId(); setConsent(null) }} className="text-slate-500 transition hover:text-acid">Privacy controls</button></div></footer>
 
     <AnimatePresence>{vaultOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={FADE} className="overlay fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setVaultOpen(false)}>
       <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={SPRING_DRAWER} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto border-l border-white/10 bg-panel p-6 shadow-2xl sm:p-8">

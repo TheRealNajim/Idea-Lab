@@ -9,7 +9,7 @@ const ICONS = {
 }
 
 const ACCENTS = {
-  info: 'text-cyan',
+  info: 'text-slate-300',
   success: 'text-acid',
   error: 'text-red-300',
 }

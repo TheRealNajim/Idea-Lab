@@ -1,0 +1,62 @@
+[
+  {
+    "id": "act1_intro",
+    "text": "Welcome to the AI Concept Mashup Generator. We spin Domain Roulette, locking onto Cybersecurity and Cooking to spark our new software concept.",
+    "target_start": 0.8,
+    "duration": 9.84,
+    "target_end": 10.64,
+    "max_end": 11.5,
+    "fits": true,
+    "file": "audio/voice/act1_intro.mp3"
+  },
+  {
+    "id": "act2_parameters",
+    "text": "In Advanced Parameters, we slide Practicality to 72 percent feasibility, and generate.",
+    "target_start": 12.2,
+    "duration": 6.552,
+    "target_end": 18.75,
+    "max_end": 19.5,
+    "fits": true,
+    "file": "audio/voice/act2_parameters.mp3"
+  },
+  {
+    "id": "act3_mashup",
+    "text": "CipherKitchen emerges, securing culinary IoT. One click copies the complete Vibecode prompt.",
+    "target_start": 20.5,
+    "duration": 7.416,
+    "target_end": 27.92,
+    "max_end": 29.5,
+    "fits": true,
+    "file": "audio/voice/act3_mashup.mp3"
+  },
+  {
+    "id": "act4_dossier",
+    "text": "Opening the Full Dossier reveals 92 percent originality and 84 percent feasibility, plus a one-week MVP roadmap. Next, we run an instant side-by-side comparison against alternative concepts.",
+    "target_start": 30.5,
+    "duration": 13.512,
+    "target_end": 44.01,
+    "max_end": 49.0,
+    "fits": true,
+    "file": "audio/voice/act4_dossier.mp3"
+  },
+  {
+    "id": "act5_vault_deck",
+    "text": "We save CipherKitchen to our Vault, export the Markdown dossier, and launch Fullscreen Presentation Mode \u2014 transforming our concept into an investor pitch deck.",
+    "target_start": 50.5,
+    "duration": 9.744,
+    "target_end": 60.24,
+    "max_end": 66.5,
+    "fits": true,
+    "file": "audio/voice/act5_vault_deck.mp3"
+  },
+  {
+    "id": "outro",
+    "text": "AI Concept Mashup Generator: turn wild intersections into winning software today.",
+    "target_start": 67.5,
+    "duration": 5.88,
+    "target_end": 73.38,
+    "max_end": 74.0,
+    "fits": true,
+    "file": "audio/voice/outro.mp3"
+  }
+]

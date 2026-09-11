@@ -1,15 +1,22 @@
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
-import { Bookmark, ChevronRight, Copy, Cpu, Download, Dices, FlaskConical, GitCompareArrows, History, KeyRound, Moon, MoreHorizontal, RotateCw, Search, Sparkles, Sun, X } from 'lucide-react'
+import { Bookmark, ChevronRight, Copy, Cpu, Download, Dices, FlaskConical, GitCompareArrows, History, KeyRound, Moon, MoreHorizontal, RotateCw, Search, Sparkles, Sun, User, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createCustomMashups, domains, filters, mashups, vaultFolders } from './data/mashups'
+import { createCustomMashups, createSignalIdeas, domains, filters, mashups, vaultFolders } from './data/mashups'
 import { useLocalStorage } from './hooks/useLocalStorage'
+import { useAuth } from './hooks/useAuth'
 import { useLearning } from './hooks/useLearning'
 import { ApiModal } from './components/ApiModal'
+import { AccountMenu } from './components/AccountMenu'
+import { AuthModal } from './components/AuthModal'
+import { BlueprintModal } from './components/BlueprintModal'
 import { DomainSlot } from './components/DomainSlot'
 import { IdeaCard } from './components/IdeaCard'
 import { AdvancedControls } from './components/AdvancedControls'
 import { IdeaDetailModal } from './components/IdeaDetailModal'
 import { ConsentBanner } from './components/ConsentBanner'
+import { PaywallModal } from './components/PaywallModal'
+import { SignalScan } from './components/SignalScan'
+import { StatusToast } from './components/StatusToast'
 import { clearAnonymousAnalyticsId, sendAnalyticsEvent } from './lib/analytics'
 import { EASE_SMOOTH, ENTER, FADE, SPIN_MS, SPIN_SWAP_MS, SPRING_DRAWER } from './lib/motion'
 
@@ -76,7 +83,80 @@ function App() {
   const outputRef = useRef(null)
   const spinTimers = useRef([])
 
-  useEffect(() => () => spinTimers.current.forEach(clearTimeout), [])
+  // --- Accounts, trials, billing -------------------------------------------
+  const auth = useAuth()
+  const authRef = useRef(auth)
+  useEffect(() => { authRef.current = auth }, [auth])
+  const [authOpen, setAuthOpen] = useState(false)
+  const [authReason, setAuthReason] = useState(null)
+  const [paywallOpen, setPaywallOpen] = useState(false)
+  const [paywallReason, setPaywallReason] = useState('scan')
+  const [blueprintIdea, setBlueprintIdea] = useState(null)
+  const [toast, setToast] = useState(null)
+  const toastTimer = useRef(null)
+
+  const notify = (message, type = 'info') => {
+    clearTimeout(toastTimer.current)
+    setToast({ id: Date.now(), message, type })
+    toastTimer.current = setTimeout(() => setToast(null), 5000)
+  }
+
+  const openAuth = (reason) => {
+    setAuthReason(reason)
+    setAuthOpen(true)
+  }
+
+  const openPaywall = (reason) => {
+    setPaywallReason(reason)
+    setPaywallOpen(true)
+  }
+
+  // Auto-close the sign-in modal as soon as a session lands (magic link or
+  // token redirect) and confirm the trial state in a toast.
+  useEffect(() => {
+    if (auth.session && authOpen) {
+      setAuthOpen(false)
+      setAuthReason(null)
+      notify(auth.isPro ? 'Signed in — Pro is active.' : 'Signed in. Free trial: 5 signal scans + 3 AI blueprints.', 'success')
+    }
+  }, [auth.session, auth.isPro, authOpen])
+
+  // Stripe redirects back with ?checkout=success|cancelled. The webhook that
+  // flips the profile to 'pro' can land seconds after the redirect, so poll
+  // briefly instead of trusting the redirect alone.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const checkout = params.get('checkout')
+    if (!checkout) return
+    window.history.replaceState({}, '', `${window.location.pathname}${window.location.hash}`)
+    if (checkout === 'cancelled') {
+      notify('Checkout cancelled — nothing was charged.', 'info')
+      return
+    }
+    notify('Activating your Pro plan…', 'info')
+    let attempts = 0
+    const poll = async () => {
+      attempts += 1
+      try {
+        const refreshed = await authRef.current.refreshProfile()
+        if (refreshed?.plan === 'pro' && ['active', 'trialing'].includes(refreshed.subscription_status)) {
+          notify('Pro is live — unlimited scans and blueprints.', 'success')
+          return
+        }
+      } catch {
+        // Keep polling; the webhook may still be in flight.
+      }
+      if (attempts < 15) setTimeout(poll, 2000)
+      else notify('Your subscription is still processing — it will unlock automatically in a moment.', 'info')
+    }
+    const timer = setTimeout(poll, 2500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => () => {
+    clearTimeout(toastTimer.current)
+    spinTimers.current.forEach(clearTimeout)
+  }, [])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark)
@@ -87,14 +167,17 @@ function App() {
     const onKeyDown = (event) => {
       if (event.key !== 'Escape') return
       if (presentation) return setPresentation(null)
-      if (detailIdea) return setDetailIdea(null)
       if (apiOpen) return setApiOpen(false)
+      if (authOpen) return setAuthOpen(false)
+      if (paywallOpen) return setPaywallOpen(false)
+      if (blueprintIdea) return setBlueprintIdea(null)
+      if (detailIdea) return setDetailIdea(null)
       if (vaultOpen) return setVaultOpen(false)
       if (historyOpen) return setHistoryOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [presentation, detailIdea, apiOpen, vaultOpen, historyOpen])
+  }, [presentation, apiOpen, authOpen, paywallOpen, blueprintIdea, detailIdea, vaultOpen, historyOpen])
 
   const visibleIdeas = useMemo(
     () => rankIdeas(ideas.filter((idea) => (activeFilter === 'All' || idea.type === activeFilter) && `${idea.title} ${idea.domainA} ${idea.domainB} ${idea.domainC || ''} ${idea.tagline}`.toLowerCase().includes(query.toLowerCase()))),
@@ -187,6 +270,29 @@ function App() {
     outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  // Turns selected signal-scan results into idea cards grounded in the real
+  // posts, then drops the user into the output grid to explore them.
+  const forgeFromSignals = (signals, topic) => {
+    const forged = createSignalIdeas(signals, { domainA: domainA || topic, domainB: domainB || topic, domainC })
+    if (forged.length === 0) return
+    setIdeas((current) => [...forged, ...current])
+    setHistory((items) => [{ id: Date.now(), domains: [topic, 'signal forge'], createdAt: new Date().toLocaleString() }, ...items].slice(0, 12))
+    setActiveFilter('All')
+    setQuery('')
+    outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  // Attaches an AI blueprint to an idea everywhere it lives (grid, dossier,
+  // vault) so it survives saving and re-opens in view mode.
+  const attachBlueprint = (idea, blueprint) => {
+    const updated = { ...idea, blueprint }
+    setIdeas((current) => current.map((item) => (item.id === idea.id ? updated : item)))
+    setSaved((items) => items.map((item) => (item.id === idea.id ? { ...item, blueprint } : item)))
+    setDetailIdea((current) => (current?.id === idea.id ? updated : current))
+    setBlueprintIdea((current) => (current?.id === idea.id ? updated : current))
+    notify('Blueprint attached to the idea.', 'success')
+  }
+
   const refine = (idea, mode) => {
     const refined = {
       ...idea,
@@ -221,6 +327,7 @@ function App() {
       '## MVP',
       (idea.mvp || []).map((item) => `- ${item}`).join('\n'),
       '',
+      ...(idea.blueprint ? ['## AI blueprint', 'See the attached blueprint (export it from the AI architect).', ''] : []),
       '## Vibecode Prompt',
       idea.prompt,
     ].join('\n')
@@ -240,12 +347,20 @@ function App() {
     <header className="app-header sticky top-0 z-30 border-b border-slate-200/80 bg-[#f5f7f2]/85 backdrop-blur-xl dark:border-white/10 dark:bg-ink/80">
       <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="group flex items-center gap-3 text-left" aria-label="Go to top of Idea Lab"><div className="logo-mark transition group-hover:-translate-y-0.5"><FlaskConical className="h-4 w-4" /></div><div><p className="font-mono text-[9px] uppercase tracking-[0.28em] text-slate-500">Idea Lab</p><h1 className="font-display text-sm font-semibold tracking-tight text-slate-900 dark:text-white">// Mashup Generator</h1></div></button>
-        <div className="flex items-center gap-2 sm:gap-3"><span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500 sm:block"><span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-acid shadow-[0_0_10px_#b8f34a]" />System online</span><button className="icon-button" onClick={() => setDark(!dark)} aria-label="Toggle theme">{dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button><button onClick={() => setHistoryOpen(true)} className="icon-button" aria-label="Open generation history"><History className="h-4 w-4" /></button><button onClick={() => setVaultOpen(true)} className="vault-button"><Bookmark className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Vault</span><b>{saved.length}</b></button></div>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500 sm:block"><span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-acid shadow-[0_0_10px_#b8f34a]" />System online</span>
+          {auth.authAvailable && (auth.session
+            ? <AccountMenu auth={auth} onUpgrade={openPaywall} notify={notify} />
+            : <button onClick={() => openAuth('Sign in to claim your free trial — 5 signal scans + 3 AI blueprints.')} className="secondary-button"><User className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Sign in</span></button>)}
+          <button className="icon-button" onClick={() => setDark(!dark)} aria-label="Toggle theme">{dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button>
+          <button onClick={() => setHistoryOpen(true)} className="icon-button" aria-label="Open generation history"><History className="h-4 w-4" /></button>
+          <button onClick={() => setVaultOpen(true)} className="vault-button"><Bookmark className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Vault</span><b>{saved.length}</b></button>
+        </div>
       </div>
     </header>
 
     <main className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
-      <section className="mb-14 grid items-end gap-8 lg:grid-cols-[1fr_320px]"><div><p className="mb-5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-acid"><span className="h-px w-8 bg-acid" />Experiment 004 / Cross-pollination engine</p><h2 className="max-w-4xl font-display text-5xl font-semibold leading-[0.95] tracking-[-0.08em] text-slate-950 dark:text-white sm:text-7xl lg:text-[6.5rem]">Make the <span className="text-acid [text-shadow:0_0_28px_rgba(184,243,74,.28)]">unlikely</span><br />feel inevitable.</h2></div><div className="border-l border-slate-300 pl-5 dark:border-white/15"><p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">The brief</p><p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Two unrelated domains. One sharp angle. Generate buildable ideas for the space between what already exists.</p></div></section>
+      <section className="mb-14 grid items-end gap-8 lg:grid-cols-[1fr_320px]"><div><p className="mb-5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-acid"><span className="h-px w-8 bg-acid" />Experiment 005 / Cross-pollination engine</p><h2 className="max-w-4xl font-display text-5xl font-semibold leading-[0.95] tracking-[-0.08em] text-slate-950 dark:text-white sm:text-7xl lg:text-[6.5rem]">Make the <span className="text-acid [text-shadow:0_0_28px_rgba(184,243,74,.28)]">unlikely</span><br />feel inevitable.</h2></div><div className="border-l border-slate-300 pl-5 dark:border-white/15"><p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500">The brief</p><p className="text-sm leading-6 text-slate-600 dark:text-slate-400">Two unrelated domains. Real problems mined from the web. An AI architect that scopes the build — before you write a line of code.</p></div></section>
 
       <section className="mb-16">
         <div className="mb-4 flex items-end justify-between">
@@ -269,9 +384,11 @@ function App() {
         </div>
       </section>
 
+      <SignalScan auth={auth} domainA={domainA} domainB={domainB} domainC={domainC} onForge={forgeFromSignals} openAuth={openAuth} openPaywall={openPaywall} />
+
       <section ref={outputRef}>
         <div className="mb-6 flex flex-col justify-between gap-5 border-b border-slate-200 pb-5 dark:border-white/10 sm:flex-row sm:items-end">
-          <div><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">02 / The output</p><h3 className="mt-2 font-display text-3xl font-semibold tracking-[-0.05em]">{hasPreferences ? 'Personalized for you' : 'Fresh from the lab'} <span className="font-mono text-sm font-normal text-slate-500">({visibleIdeas.length})</span></h3></div>
+          <div><p className="font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">03 / The output</p><h3 className="mt-2 font-display text-3xl font-semibold tracking-[-0.05em]">{hasPreferences ? 'Personalized for you' : 'Fresh from the lab'} <span className="font-mono text-sm font-normal text-slate-500">({visibleIdeas.length})</span></h3></div>
           <div className="flex items-center gap-3">
             <div className="relative hidden sm:block"><Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Filter archive" className="search-input" /></div>
             <div className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-white/10 dark:bg-white/5">{filters.map((filter) => <button key={filter} onClick={() => setActiveFilter(filter)} className={`filter-chip ${activeFilter === filter ? 'active' : ''}`}>{filter}</button>)}</div>
@@ -314,7 +431,7 @@ function App() {
       </section>
     </main>
 
-    <footer className="border-t border-slate-200 px-5 py-8 dark:border-white/10 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500"><span>Idea Lab / v0.5.0</span><span className="hidden sm:block">Make weird useful</span><span><Cpu className="mr-1 inline h-3 w-3" /> {hasPreferences ? 'Learning locally' : 'Local archive'}</span><button onClick={() => { resetLearning(); clearAnonymousAnalyticsId(); setConsent(null) }} className="text-slate-500 transition hover:text-acid">Privacy controls</button></div></footer>
+    <footer className="border-t border-slate-200 px-5 py-8 dark:border-white/10 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500"><span>Idea Lab / v2.0.0</span><span className="hidden sm:block">Make weird useful</span><span><Cpu className="mr-1 inline h-3 w-3" /> {hasPreferences ? 'Learning locally' : 'Local archive'}</span><button onClick={() => { resetLearning(); clearAnonymousAnalyticsId(); setConsent(null) }} className="text-slate-500 transition hover:text-acid">Privacy controls</button></div></footer>
 
     <AnimatePresence>{vaultOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={FADE} className="overlay fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setVaultOpen(false)}>
       <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={SPRING_DRAWER} className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto border-l border-white/10 bg-panel p-6 shadow-2xl sm:p-8">
@@ -343,12 +460,17 @@ function App() {
 
     <AnimatePresence>{historyOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={FADE} className="overlay fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && setHistoryOpen(false)}><motion.aside initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={SPRING_DRAWER} className="absolute left-0 top-0 h-full w-full max-w-sm overflow-y-auto border-r border-white/10 bg-panel p-6 shadow-2xl"><div className="mb-10 flex items-center justify-between"><div><p className="font-mono text-[10px] uppercase tracking-widest text-acid">Session log</p><h2 className="mt-2 font-display text-3xl font-semibold text-white">History</h2></div><button className="icon-button" onClick={() => setHistoryOpen(false)}><X className="h-4 w-4" /></button></div>{history.length === 0 ? <p className="text-sm text-slate-500">Your generated collisions will appear here.</p> : <div className="space-y-3">{history.map((entry) => <button key={entry.id} onClick={() => { setDomainA(entry.domains[0] || ''); setDomainB(entry.domains[1] || ''); setDomainC(entry.domains[2] || ''); setHistoryOpen(false) }} className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-acid/40"><div className="mb-2 flex items-center justify-between font-mono text-[9px] uppercase tracking-widest text-slate-500"><span>Collision</span><span>{entry.createdAt}</span></div><p className="text-sm text-white">{entry.domains.join(' + ')}</p></button>)}</div>}</motion.aside></motion.div>}</AnimatePresence>
 
-    <AnimatePresence>{detailIdea && <IdeaDetailModal idea={detailIdea} onClose={() => setDetailIdea(null)} onPresent={() => { setPresentation(detailIdea); setDetailIdea(null) }} onExport={() => exportMarkdown(detailIdea)} />}</AnimatePresence>
+    <AnimatePresence>{detailIdea && <IdeaDetailModal idea={detailIdea} onClose={() => setDetailIdea(null)} onPresent={() => { setPresentation(detailIdea); setDetailIdea(null) }} onExport={() => exportMarkdown(detailIdea)} onBlueprint={(idea) => setBlueprintIdea(idea)} />}</AnimatePresence>
+
+    <AnimatePresence>{blueprintIdea && <BlueprintModal idea={blueprintIdea} initialBlueprint={blueprintIdea.blueprint || null} onClose={() => setBlueprintIdea(null)} auth={auth} openAuth={openAuth} openPaywall={openPaywall} openModelSetup={() => setApiOpen(true)} onAttach={attachBlueprint} />}</AnimatePresence>
 
     <AnimatePresence>{presentation && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={FADE} className="fixed inset-0 z-[60] flex items-center justify-center bg-ink p-6 text-center"><button onClick={() => setPresentation(null)} className="icon-button absolute right-6 top-6" aria-label="Exit presentation mode"><X className="h-4 w-4" /></button><motion.div initial={{ opacity: 0, y: 18, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.99 }} transition={{ ...ENTER, delay: 0.06 }} className="max-w-4xl"><p className="mb-6 font-mono text-xs uppercase tracking-[0.3em] text-acid">Idea Lab / Presentation mode</p><h2 className="font-display text-6xl font-semibold tracking-[-0.08em] text-white sm:text-8xl">{presentation.title}</h2><p className="mx-auto mt-8 max-w-2xl text-xl leading-8 text-slate-400">{presentation.tagline} {presentation.pitch}</p><div className="mt-10 flex justify-center gap-3"><button onClick={() => copySummary(presentation)} className="secondary-button"><Copy className="h-4 w-4" /> {copied === presentation.id ? 'Copied' : 'Copy summary'}</button><button onClick={() => exportMarkdown(presentation)} className="primary-button"><Download className="h-4 w-4" /> Export</button></div></motion.div></motion.div>}</AnimatePresence>
 
     <AnimatePresence>{apiOpen && <ApiModal onClose={() => setApiOpen(false)} />}</AnimatePresence>
+    <AnimatePresence>{authOpen && <AuthModal onClose={() => setAuthOpen(false)} reason={authReason} sendMagicLink={auth.sendMagicLink} />}</AnimatePresence>
+    <AnimatePresence>{paywallOpen && <PaywallModal onClose={() => setPaywallOpen(false)} reason={paywallReason} auth={auth} onUseOwnKey={() => { setPaywallOpen(false); setApiOpen(true) }} />}</AnimatePresence>
     <AnimatePresence>{consent === null && <ConsentBanner onChoice={setConsent} />}</AnimatePresence>
+    <StatusToast toast={toast} onDismiss={() => setToast(null)} />
   </div></MotionConfig>
 }
 

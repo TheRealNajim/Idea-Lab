@@ -144,3 +144,44 @@ export function createCustomMashups(domainA, domainB, domainC = '') {
     prompt: `Design and build “${name}”, a responsive product combining ${domainA} and ${domainB}. Create a distinct visual system derived from both domains, an onboarding flow, a working generator with sample data, saved results, and an accessible mobile experience. Use React, Tailwind CSS, and Framer Motion. Avoid generic dashboard patterns and make the core interaction feel tactile.`,
   }, index))
 }
+
+// Ideas forged from mined signals (Signal Scan). Unlike the templates above,
+// these are grounded in evidence: the pitch cites the exact posts the user
+// selected, and the signals ride along on the card so the dossier can link
+// back to the original sources.
+export function createSignalIdeas(signals, context = {}) {
+  const selected = (signals || []).filter(Boolean).slice(0, 5)
+  if (selected.length === 0) return []
+
+  const domainA = context.domainA || 'Real Problems'
+  const domainB = context.domainB || 'The Web'
+  const evidence = selected.map((signal) => `“${signal.title}” (${signal.source}${signal.engagement ? `, ${signal.engagement} engagement` : ''})`)
+  const headline = selected.reduce((best, signal) => (signal.engagement || 0) > (best.engagement || 0) ? signal : best, selected[0])
+  const keywords = [...new Set(
+    selected.flatMap((signal) => String(signal.title).split(/\s+/))
+  )].filter((word) => word.length > 4 && /^[a-z]+$/i.test(word)).slice(0, 4)
+  const focus = keywords.length > 0 ? keywords.slice(0, 2).join(' + ').toLowerCase() : 'this friction'
+
+  const stems = [
+    ['Friction Fix', 'A direct answer to pain people already report.'],
+    ['Signal Shift', 'Turn recurring complaints into a recurring product.'],
+    ['Complaint Engine', 'Every upvoted problem is a feature request.'],
+  ]
+
+  return stems.map(([name, tagline], index) => enrich({
+    id: `signal-${Date.now()}-${index}`,
+    title: `${name}: ${headline.title.split(/\s+/).slice(0, 4).join(' ')}`,
+    domainA,
+    domainB,
+    domainC: context.domainC || '',
+    type: typeCycle[index % typeCycle.length],
+    tagline,
+    pitch: `Grounded in ${selected.length} real-world signal${selected.length === 1 ? '' : 's'}: ${evidence.join(' ')}. The product takes the most repeated complaint — ${focus} — and turns it into a focused workflow for people in ${domainA}, starting with the single most painful step rather than a full platform.`,
+    audience: `People who raised these problems on ${[...new Set(selected.map((signal) => signal.source))].join(', ')}`,
+    stack: ['React', 'Supabase', index === 0 ? 'Stripe' : 'Vite'],
+    whyNow: `These problems are live right now — the top signal (${headline.engagement || 'recent'} engagement on ${headline.source}) was reported organically, without anyone asking.`,
+    risks: ['Signal volume does not prove willingness to pay', 'The complaint may be a symptom of a deeper workflow problem'],
+    prompt: `Build “${name}”, a product that solves problems people are already reporting about ${domainA} × ${domainB}. Evidence: ${evidence.join(' ')}. Start from the most repeated pain point, design one focused workflow that removes it completely, and keep the first-run experience under two minutes. Use React, Tailwind CSS, and Supabase. Include realistic sample data and a clear path from the free tier to paid.`,
+    signals: selected.map((signal) => ({ source: signal.source, title: signal.title, url: signal.url, engagement: signal.engagement, snippet: signal.snippet })),
+  }, index))
+}

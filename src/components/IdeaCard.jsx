@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Bookmark, Check, Copy, Eye, GitCompareArrows, Share2, Sparkles, ThumbsDown, ThumbsUp, Users } from 'lucide-react'
+import { Bookmark, Check, Copy, Eye, GitCompareArrows, Share2, Sparkles, ThumbsDown, ThumbsUp, Users, Zap } from 'lucide-react'
 import { EASE_OUT, EASE_SMOOTH, SPRING_HOVER, SPRING_LAYOUT } from '../lib/motion'
 
 export function IdeaCard({ idea, index, saved, onSave, onCopy, copied, copyFailed, onInspect, onRefine, onCompare, compared, rating, onRate, onShare }) {
@@ -60,6 +60,9 @@ export function IdeaCard({ idea, index, saved, onSave, onCopy, copied, copyFaile
         <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-violet">{idea.type}</p>
         <h3 className="font-display text-2xl font-semibold tracking-[-0.04em] text-slate-950 dark:text-white sm:text-[1.75rem]">{idea.title}</h3>
         <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">{idea.tagline}</p>
+        {(idea.signals || []).length > 0 && <p className="mt-2 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider text-acid">
+          <Zap className="h-3 w-3" /> {idea.signals.length} live signal{idea.signals.length === 1 ? '' : 's'} / {[...new Set(idea.signals.map((signal) => signal.source))].join(', ')}
+        </p>}
       </div>
 
       <p className="mb-6 text-sm leading-6 text-slate-600 dark:text-slate-400">{idea.pitch}</p>

@@ -61,6 +61,10 @@ export async function sendAnalyticsEvent(name, properties = {}) {
     format: properties.format,
     difficulty: properties.difficulty,
     rating: properties.rating,
+    sources: properties.sources,
+    count: properties.count,
+    provider: properties.provider,
+    mode: properties.mode,
   }
 
   try {

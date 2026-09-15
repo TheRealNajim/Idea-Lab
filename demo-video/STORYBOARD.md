@@ -22,7 +22,7 @@ music: "none"
 ### Frame 01: The Monolith & The Collision Concept
 - **Timing:** 00:00 - 00:14 (0s - 14s | Frames 0 - 420)
 - **Beat:** Hook - The creative bottleneck in modern tech.
-- **Visuals:** Desktop workstation appears in deep monochrome. The browser opens `https://ai-concept-mashup-generator.vercel.app/`. Clean typography fades in: "Idea Lab // Mashup Generator" with "System Online" indicator. The hero headline strikes: *"Make the unlikely feel inevitable."*
+- **Visuals:** Desktop workstation appears in deep monochrome. The browser opens `https://makeweirduseful.vercel.app/`. Clean typography fades in: "Idea Lab // Mashup Generator" with "System Online" indicator. The hero headline strikes: *"Make the unlikely feel inevitable."*
 - **Action:** Cursor navigates from top left, highlighting the collision brief: *"Two unrelated domains. One sharp angle. Generate buildable ideas for the space between what already exists."*
 - **Narration Cue:** "Every breakthrough product begins where two unrelated worlds collide. Welcome to Idea Lab."
 
@@ -35,7 +35,7 @@ music: "none"
 - **Action:** Cursor moves to the central Dice button and clicks. The roulette spins smoothly through domain pairs, settling with a snap on: **Domain A: Cybersecurity** and **Domain B: Cooking**.
 - **Action 2:** Cursor toggles "Advanced Parameters" drawer. The controls expand: Output Format set to "Web app", Timeline set to "Weekend", and the Practicality Slider smoothly glides to 72% ("Bias: ship the smallest defensible version first").
 - **Action 3:** Cursor clicks the glowing monochrome button: *"Generate Ideas ->"*.
-- **Narration Cue:** "Spin the collision engine. Pair orthogonal disciplines—like Cybersecurity and Cooking—and fine-tune practicality, audience, and constraints."
+- **Narration Cue:** "Spin the collision engine. Pair orthogonal disciplinesï¿½like Cybersecurity and Cookingï¿½and fine-tune practicality, audience, and constraints."
 
 ---
 
@@ -59,7 +59,7 @@ music: "none"
 - **Visuals:** Modal closes. Cursor clicks "Compare" on CipherKitchen and selects **Runway Runtime** (Fashion x Dev Tools).
 - **Action:** A dedicated split comparison banner reveals trade-offs side-by-side (Audience, Tech Stack, Timeline, Difficulty).
 - **Action 2:** Cursor clicks the bookmark icon on CipherKitchen. The Vault counter ticks up. Cursor clicks "Vault", sliding in the right-side drawer.
-- **Action 3:** Categorizes into folder: *"Build next"*, and clicks "Export Markdown" — initiating an instant local download.
+- **Action 3:** Categorizes into folder: *"Build next"*, and clicks "Export Markdown" ï¿½ initiating an instant local download.
 - **Narration Cue:** "Weigh trade-offs side-by-side in Compare mode. Save top contenders to your Vault, and export instant markdown specifications."
 
 ---
@@ -69,7 +69,7 @@ music: "none"
 - **Beat:** Hackathon Pitch Climax & Call to Action.
 - **Visuals:** Cursor clicks "Present Idea". The interface dissolves into a stark, minimalist fullscreen Pitch Deck slide: **CIPHERKITCHEN** in massive editorial display serif, with core thesis, target persona, and architecture stack.
 - **Action:** The camera zooms out smoothly to reveal the complete desktop setup: BYOK Model Setup (Gemini, Claude, OpenAI), local-first privacy badge ("Zero telemetry stored"), and the official Hackathon submission slate:
-  - Live Demo: `https://ai-concept-mashup-generator.vercel.app/`
+  - Live Demo: `https://makeweirduseful.vercel.app/`
   - GitHub: Open Source Repository
   - *"Make the unlikely feel inevitable."*
 - **Narration Cue:** "From random collision to validated product in sixty seconds. Built for hackathon builders and innovators. Try Idea Lab today."

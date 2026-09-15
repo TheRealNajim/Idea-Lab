@@ -1,8 +1,8 @@
 ---
-title: "AI Concept Mashup Generator — Hackathon Demo"
+title: "AI Concept Mashup Generator ï¿½ Hackathon Demo"
 product: "AI Concept Mashup Generator"
 tagline: "Make the unlikely feel inevitable."
-url: "https://ai-concept-mashup-generator.vercel.app/"
+url: "https://makeweirduseful.vercel.app/"
 repository: "C:\Users\najim\Videos\Code\AI Concept Mashup Generator"
 aspect_ratio: "16:9"
 target_duration: 75
